@@ -58,13 +58,16 @@ public:
 
     bool wait(pthread_mutex_t *mutex)
     {
-        return pthread_cond_wait(&m_cond, mutex) == 0;
+        int ret = 0;
+        ret =  pthread_cond_wait(&m_cond, mutex) == 0;
+        return ret == 0;
     }
 
     bool timedwait(pthread_mutex_t *mutex, struct timespec t)
     {
-
-        return pthread_cond_timedwait(&m_cond, mutex, &t) == 0;
+        int ret = 0;
+        ret = pthread_cond_timedwait(&m_cond, mutex, &t) == 0;
+        return ret == 0;
     }
 
     bool signal(pthread_mutex_t *mutex)
