@@ -56,7 +56,6 @@ int main(int argc, char *argv[])
 
     // 创建线程池 初始化线程
     threadpool<http_conn> *pool = NULL;
-
     try
     {
         pool = new threadpool<http_conn>;
@@ -112,6 +111,11 @@ int main(int argc, char *argv[])
                 struct sockaddr_in client_address;
                 socklen_t client_addrlen = sizeof(client_address);
                 int connfd = accept(listenfd, (struct sockaddr *)&client_address, &client_addrlen);
+
+                if(connfd < 0){
+                    printf("error is : %d\n", errno);
+                    continue;
+                }
 
                 if (http_conn::m_user_count >= MAX_FD)
                 {

@@ -30,9 +30,9 @@ public:
     static const int WRITE_BUFFER_SIZE = 1024; //写缓冲区大小
     static const int FILENAME_LEN = 200; //文件名的最大长度
 
-    //http 请求方法 
-    enum METHOD {GET = 0, POST, HEAD, PUT, DELETE, TRACE, OPTIONS, connect};
-
+    // HTTP请求方法，这里只支持GET
+    enum METHOD {GET = 0, POST, HEAD, PUT, DELETE, TRACE, OPTIONS, CONNECT};
+    
     /*
         解析客户端请求时，主状态机的状态
         CHECK_STATE_REQUESTLINE:当前正在分析请求行
@@ -92,7 +92,7 @@ private:
     CHECK_STATE m_check_state; //主状态机当前所处的状态
 
     char m_write_buf[ WRITE_BUFFER_SIZE ];  // 写缓冲区
-    int m_write_idx;                        // 写缓冲区中待发送的字节数
+    int m_write_index;                        // 写缓冲区中待发送的字节数
     char* m_file_address;                   // 客户请求的目标文件被mmap到内存中的起始位置
     struct stat m_file_stat;                // 目标文件的状态。通过它我们可以判断文件是否存在、是否为目录、是否可读，并获取文件大小等信息
     struct iovec m_iv[2];                   // 我们将采用writev来执行写操作，所以定义下面两个成员，其中m_iv_count表示被写内存块的数量。
