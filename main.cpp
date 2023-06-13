@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
     addrress.sin_addr.s_addr = INADDR_ANY;
     addrress.sin_port = htons(port);
 
-    // 设置端口 复用
+    // 设置端口 复用  端口复用要在绑定之前使用
     int reuse = 1;
     setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
     ret = bind(listenfd, (struct sockaddr *)&addrress, sizeof(addrress));
@@ -88,12 +88,13 @@ int main(int argc, char *argv[])
     epoll_event events[MAX_EVENT_NUMBER];
     int epollfd = epoll_create(5);
 
-    // 监听的文件描述符 添加到epoll
+    // 监听的文件描述符 添加到epoll。监听的文件描述符 不需要one-shot
     addfd(epollfd, listenfd, false);
-    http_conn::m_epollfd = epollfd;
+    http_conn::m_epollfd = epollfd;  // 所有事件共享的 epollfd， 都被注册到同一个epoll
 
     while (true)
     {
+        //events 传出参数
         int num = epoll_wait(epollfd, events, MAX_EVENT_NUMBER, -1);
         if ((num < 0) && (errno != EINTR))
         {
@@ -128,7 +129,7 @@ int main(int argc, char *argv[])
                 // 新的客户数据初始化 放入数组
                 users[connfd].init(connfd, client_address);
             }
-            else if (events[i].events & (EPOLLRDHUP | EPOLLHUP | EPOLLERR))
+            else if (events[i].events & (EPOLLRDHUP | EPOLLHUP | EPOLLERR)) //异常断开连接
             {
                 // 对方异常连接 断开
                 users[sockfd].close_conn();

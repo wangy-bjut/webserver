@@ -17,6 +17,7 @@ const char *doc_root = "/home/wangy/webserver/resources";
 // 设置文件描述符非阻塞
 int setnonblocking(int fd)
 {
+   
    int old_flag = fcntl(fd, F_GETFL);
    int new_flag = old_flag | O_NONBLOCK;
    fcntl(fd, F_SETFL, new_flag);
@@ -28,9 +29,10 @@ void addfd(int epollfd, int fd, bool one_shot)
 {
    epoll_event event;
    event.data.fd = fd;
-   event.events = EPOLLIN | EPOLLRDHUP;
+   event.events = EPOLLIN | EPOLLRDHUP;  //边沿触发
 
-   // ET边沿触发
+   // 即使ET边沿触发 ，一个事件仍然可能有多次触发 导致多个线程同时操作一个socket  oneshort保证只有一个线程处理一个socket 
+   // 每次触发以后 在设置
    if (one_shot)
    {
       event.events |= EPOLLONESHOT;
@@ -61,7 +63,7 @@ int http_conn::m_user_count = 0;
 
 void http_conn::close_conn()
 {
-   if (m_sockfd != -1)
+   if (m_sockfd != -1) //
    {
       removefd(m_epollfd, m_sockfd);
       m_sockfd = -1;

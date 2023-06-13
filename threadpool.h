@@ -14,6 +14,7 @@ class threadpool
 public:
     threadpool(int thread_number = 8,int max_requests = 10000);
     ~threadpool();
+    //添加任务
     bool append(T* request);
 
 
@@ -71,6 +72,7 @@ m_stop(false), m_threads(NULL){
             throw std::exception();
         }
 
+        //设置线程分离 线程被标记  结束后自动释放资源
         if(pthread_detach(m_threads[i])){
             delete[] m_threads;
             throw std::exception(); 
@@ -86,6 +88,7 @@ threadpool<T>::~threadpool() {
         m_stop = true;
     }
 
+//请求队列中添加任务
 template<typename T>
 bool threadpool<T>::append(T * request){
        
